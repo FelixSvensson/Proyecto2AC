@@ -1,46 +1,90 @@
-# Copyright 2026 Universidad de los Andes.
-# Licensed under the Solderpad Hardware License, Version 0.51 (the "License");
-# you may not use this file except in compliance with the License.
-# SPDX-License-Identifier: SHL-0.51
-#
-# Course: Arquitectura de Computadores (2026)
-# 
-# Authors:
-# - Nicolás Villegas <navillegas@miuandes.cl>
+# Proyecto 2 - Arquitectura de Computadores 2026-2
 
+# --------------------------------------------------
 # Configuration
-TOP  := pochoco_soc
-PCF  := goboard.pcf
+# --------------------------------------------------
 
-# RTL Sources
-SRC  := $(wildcard ./rtl/*.v ./rtl/**/*.v)
+TOP := game_top
+PCF := goboard.pcf
 
-# Build Targets
+# Software
+GAME_ASM := sw/game.s
+GAME_HEX := sw/game.hex
+ASSEMBLER := assembler/assembler.py
+
+# RTL sources
+SRC := $(wildcard ./rtl/*.v ./rtl/**/*.v)
+
+# FPGA build files
 JSON := $(TOP).json
 ASC  := $(TOP).asc
 BIN  := $(TOP).bin
 
-.PHONY: all prog clean stats
 
-# Default target
-all: prog
+.PHONY: all game prog clean stats
 
-# Step 1: Synthesis using Yosys
-$(JSON): $(SRC)
-	yosys -p "read_verilog $(SRC); synth_ice40 -top $(TOP) -json ${TOP}.json; stat"
 
-# Step 2: Place and Route using NextPNR
+# --------------------------------------------------
+# Default
+# --------------------------------------------------
+
+all: $(BIN)
+
+
+# --------------------------------------------------
+# Software
+# game.s -> game.hex using OUR assembler
+# --------------------------------------------------
+
+game: $(GAME_HEX)
+
+$(GAME_HEX): $(GAME_ASM) $(ASSEMBLER)
+	python3 $(ASSEMBLER) $(GAME_ASM) $(GAME_HEX)
+
+
+# --------------------------------------------------
+# FPGA synthesis
+# --------------------------------------------------
+
+$(JSON): $(SRC) $(GAME_HEX)
+	yosys -p "read_verilog $(SRC); synth_ice40 -top $(TOP) -json $(JSON); stat"
+
+
+# --------------------------------------------------
+# Place and route
+# --------------------------------------------------
+
 $(ASC): $(JSON) $(PCF)
 	nextpnr-ice40 --hx1k --package vq100 --json $(JSON) --pcf $(PCF) --asc $(ASC)
 
-# Step 3: Bitstream Generation
+
+# --------------------------------------------------
+# Bitstream
+# --------------------------------------------------
+
 $(BIN): $(ASC)
 	icepack $(ASC) $(BIN)
 
-# Step 4: Flash the Board
+
+# --------------------------------------------------
+# Program FPGA
+# --------------------------------------------------
+
 prog: $(BIN)
 	iceprog $(BIN)
 
-# Clean up generated files
+
+# --------------------------------------------------
+# Clean generated FPGA files
+# --------------------------------------------------
+
 clean:
 	rm -f $(JSON) $(ASC) $(BIN)
+
+
+# --------------------------------------------------
+# Resource statistics
+# --------------------------------------------------
+
+stats: $(JSON)
+	yosys -p "read_json $(JSON); stat"
