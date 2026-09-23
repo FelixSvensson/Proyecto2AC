@@ -265,12 +265,9 @@ def assemble_instruction(line, pc, labels):
     register_operations = {
         "add":  (0b000, 0b0000000),
         "sub":  (0b000, 0b0100000),
-        "sll":  (0b001, 0b0000000),
         "slt":  (0b010, 0b0000000),
         "sltu": (0b011, 0b0000000),
         "xor":  (0b100, 0b0000000),
-        "srl":  (0b101, 0b0000000),
-        "sra":  (0b101, 0b0100000),
         "or":   (0b110, 0b0000000),
         "and":  (0b111, 0b0000000),
     }

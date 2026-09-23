@@ -119,7 +119,21 @@ _start:
             result.stdout
         )
 
+    def test_disabled_shift_instruction(self):
 
+        source = """
+_start:
+    sll x1, x2, x3
+"""
+
+        result, _ = run_assembler(source)
+
+        self.assertNotEqual(result.returncode, 0)
+
+        self.assertIn(
+            "Instruccion no soportada",
+            result.stdout
+        )
     def test_duplicate_label(self):
 
         source = """
