@@ -21,8 +21,7 @@ ASC  := $(TOP).asc
 BIN  := $(TOP).bin
 
 
-.PHONY: all game prog clean stats
-
+.PHONY: all game test prog clean stats
 
 # --------------------------------------------------
 # Default
@@ -64,7 +63,14 @@ $(ASC): $(JSON) $(PCF)
 
 $(BIN): $(ASC)
 	icepack $(ASC) $(BIN)
+# --------------------------------------------------
+# Tests
+# --------------------------------------------------
 
+test:
+	python3 assembler/test_assembler.py
+	iverilog -g2012 -o /tmp/pochoco_periph_tb sim/pochoco_periph_tb.v rtl/pochoco_periph.v
+	vvp /tmp/pochoco_periph_tb
 
 # --------------------------------------------------
 # Program FPGA
