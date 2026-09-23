@@ -1,13 +1,3 @@
-// Copyright 2026 Universidad de los Andes.
-// Licensed under the Solderpad Hardware License, Version 0.51 (the "License");
-// you may not use this file except in compliance with the License.
-// SPDX-License-Identifier: SHL-0.51
-//
-// Course: Arquitectura de Computadores (2026)
-// 
-// Authors:
-// - Nicolás Villegas <navillegas@miuandes.cl>
-
 module pochoco_periph (
   input  wire        clk_i,
   input  wire        rst_ni,
@@ -26,61 +16,147 @@ module pochoco_periph (
   wire [5:0] off    = addr_i[7:2];
   wire       access = sel_i & req_i;
 
-  // LEDs and raw digit registers
+  // --------------------------------------------------
+  // Peripheral registers
+  // --------------------------------------------------
+
   reg [3:0]  led_q;
   reg [7:0]  digit_q;
-  
+
+  // Free-running clock-cycle counter
+  reg [31:0] cycle_q;
+
+  // Cycle in which the LEDs were last written.
+  // This lets the program know the exact logical
+  // instant in which the target LED was activated.
+  reg [31:0] led_cycle_q;
+
+
+  // --------------------------------------------------
+  // Cycle counter
+  // --------------------------------------------------
+
+  always @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni)
+      cycle_q <= 32'b0;
+    else
+      cycle_q <= cycle_q + 32'd1;
+  end
+
+
+  // --------------------------------------------------
+  // Writable peripheral registers
+  // --------------------------------------------------
+
   always @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      led_q   <= 4'b0;
-      digit_q <= 8'b0;
+
+      led_q       <= 4'b0;
+      digit_q     <= 8'b0;
+      led_cycle_q <= 32'b0;
+
     end else if (access & we_i) begin
+
       case (off)
-        6'd0: digit_q <= wdata_i[7:0];
-        6'd1: led_q   <= wdata_i[3:0];
-        default: ;
+
+        // 0x8000_0000
+        // Two hexadecimal digits
+        6'd0:
+          digit_q <= wdata_i[7:0];
+
+        // 0x8000_0004
+        // LEDs
+        //
+        // Save the cycle in which the LEDs change.
+        6'd1: begin
+          led_q       <= wdata_i[3:0];
+          led_cycle_q <= cycle_q;
+        end
+
+        default:
+          ;
+
       endcase
     end
   end
 
+
   assign leds_o = led_q;
 
-  // Hex to 7-segment decoder function
+
+  // --------------------------------------------------
+  // Hexadecimal to 7-segment decoder
+  // --------------------------------------------------
+
   function [6:0] hex2seg;
+
     input [3:0] hex;
+
     begin
       case (hex)
-        4'h0: hex2seg = 7'b0111111; // 0
-        4'h1: hex2seg = 7'b0000110; // 1
-        4'h2: hex2seg = 7'b1011011; // 2
-        4'h3: hex2seg = 7'b1001111; // 3
-        4'h4: hex2seg = 7'b1100110; // 4
-        4'h5: hex2seg = 7'b1101101; // 5
-        4'h6: hex2seg = 7'b1111101; // 6
-        4'h7: hex2seg = 7'b0000111; // 7
-        4'h8: hex2seg = 7'b1111111; // 8
-        4'h9: hex2seg = 7'b1101111; // 9
-        4'hA: hex2seg = 7'b1110111; // A
-        4'hB: hex2seg = 7'b1111100; // b
-        4'hC: hex2seg = 7'b0111001; // C
-        4'hD: hex2seg = 7'b1011110; // d
-        4'hE: hex2seg = 7'b1111001; // E
-        4'hF: hex2seg = 7'b1110001; // F
-        default: hex2seg = 7'b0000000;
+
+        4'h0: hex2seg = 7'b0111111;
+        4'h1: hex2seg = 7'b0000110;
+        4'h2: hex2seg = 7'b1011011;
+        4'h3: hex2seg = 7'b1001111;
+        4'h4: hex2seg = 7'b1100110;
+        4'h5: hex2seg = 7'b1101101;
+        4'h6: hex2seg = 7'b1111101;
+        4'h7: hex2seg = 7'b0000111;
+        4'h8: hex2seg = 7'b1111111;
+        4'h9: hex2seg = 7'b1101111;
+        4'hA: hex2seg = 7'b1110111;
+        4'hB: hex2seg = 7'b1111100;
+        4'hC: hex2seg = 7'b0111001;
+        4'hD: hex2seg = 7'b1011110;
+        4'hE: hex2seg = 7'b1111001;
+        4'hF: hex2seg = 7'b1110001;
+
+        default:
+          hex2seg = 7'b0000000;
+
       endcase
     end
+
   endfunction
+
 
   assign seg1_o = hex2seg(digit_q[7:4]);
   assign seg2_o = hex2seg(digit_q[3:0]);
 
-  // Registered read data
+
+  // --------------------------------------------------
+  // Readable peripheral registers
+  // --------------------------------------------------
+
   always @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) rdata_o <= 32'b0;
-    else if (access & ~we_i) begin
+
+    if (!rst_ni) begin
+
+      rdata_o <= 32'b0;
+
+    end else if (access & ~we_i) begin
+
       case (off)
-        6'd2: rdata_o <= {28'b0, btn_i}; // Buttons
-        default: rdata_o <= 32'b0;
+
+        // 0x8000_0008
+        // Buttons
+        6'd2:
+          rdata_o <= {28'b0, btn_i};
+
+        // 0x8000_000C
+        // Current clock-cycle counter
+        6'd3:
+          rdata_o <= cycle_q;
+
+        // 0x8000_0010
+        // Cycle in which LEDs were last changed
+        6'd4:
+          rdata_o <= led_cycle_q;
+
+        default:
+          rdata_o <= 32'b0;
+
       endcase
     end
   end
