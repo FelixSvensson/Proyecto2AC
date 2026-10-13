@@ -26,6 +26,7 @@ Cada ronda funciona de la siguiente forma:
 7. Si la respuesta es correcta, se calcula el tiempo de reacción, se muestra en los displays en **décimas de segundo** y se incrementa el número de rondas correctas.
 8. Si el botón es incorrecto, se muestra `EE`, la ronda actual se reinicia y las rondas correctas anteriores se conservan.
 9. Al completar **10 rondas correctas**, se calcula y muestra el tiempo de reacción promedio.
+10. Una vez mostrado el promedio, el juego espera que se presione y suelte el **botón 4** para comenzar una nueva partida desde cero.
 
 ---
 
