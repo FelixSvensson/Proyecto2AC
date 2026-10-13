@@ -54,7 +54,7 @@ $(JSON): $(SRC) $(GAME_HEX)
 # --------------------------------------------------
 
 $(ASC): $(JSON) $(PCF)
-	nextpnr-ice40 --hx1k --package vq100 --json $(JSON) --pcf $(PCF) --asc $(ASC)
+	nextpnr-ice40 --hx1k --package vq100 --freq 25 --json $(JSON) --pcf $(PCF) --asc $(ASC)
 
 
 # --------------------------------------------------
@@ -77,7 +77,7 @@ test:
 # --------------------------------------------------
 
 prog: $(BIN)
-	iceprog $(BIN)
+	iceprog -s -k $(BIN)
 
 
 # --------------------------------------------------

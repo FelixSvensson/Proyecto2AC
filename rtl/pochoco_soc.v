@@ -32,12 +32,17 @@ module pochoco_soc #(
   assign clk = i_Clk;
 
   // Power-on reset
-  reg  [3:0] por_cnt = 4'b0;
+  // Keep the SoC in reset for 255 clock cycles after configuration.
+  // At 25 MHz this is about 10 us and gives the CPU/RAM a clean startup.
+  reg  [7:0] por_cnt = 8'b0;
   wire       rst_ni;
+
   always @(posedge clk) begin
-    if (por_cnt != 4'hF) por_cnt <= por_cnt + 4'd1;
+    if (por_cnt != 8'hFF)
+      por_cnt <= por_cnt + 8'd1;
   end
-  assign rst_ni = (por_cnt == 4'hF);
+
+  assign rst_ni = (por_cnt == 8'hFF);
 
   // Core-memory wiring
   wire        instr_req;
