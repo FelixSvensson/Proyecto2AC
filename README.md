@@ -144,18 +144,18 @@ Esto permite que el inicio de la medición coincida con el instante lógico en q
 
 ## 6. Temporización
 
-El reloj utilizado es de **12 MHz**.
+El reloj utilizado es de **25 MHz**.
 
 ```text
-12 000 000 ciclos = 1 segundo
-36 000 000 ciclos = 3 segundos
- 1 200 000 ciclos = 0,1 segundos
+25 000 000 ciclos = 1 segundo
+75 000 000 ciclos = 3 segundos
+ 2 500 000 ciclos = 0,1 segundos
 ```
 
 La espera inicial de cada ronda termina cuando:
 
 ```text
-ciclo_actual - ciclo_inicial >= 36 000 000
+ciclo_actual - ciclo_inicial >= 75 000 000
 ```
 
 El tiempo de reacción se obtiene como:
@@ -164,7 +164,7 @@ El tiempo de reacción se obtiene como:
 tiempo_reaccion = ciclo_actual - ciclo_inicio_LED
 ```
 
-Para convertir el resultado a décimas de segundo se utilizan restas sucesivas de `1 200 000`, evitando depender de una instrucción de división.
+Para convertir el resultado a décimas de segundo se utilizan restas sucesivas de `2 500 000`, evitando depender de una instrucción de división.
 
 ---
 
@@ -176,11 +176,11 @@ Después de 10 rondas:
 
 ```text
 promedio en décimas
-= total_ciclos / (10 * 1 200 000)
-= total_ciclos / 12 000 000
+= total_ciclos / (10 * 2 500 000)
+= total_ciclos / 25 000 000
 ```
 
-El programa realiza esta conversión mediante restas sucesivas de `12 000 000`.
+El programa realiza esta conversión mediante restas sucesivas de `25 000 000`.
 
 El valor mostrado se limita a dos dígitos (`00` a `99` décimas).
 

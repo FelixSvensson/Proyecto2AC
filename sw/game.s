@@ -7,9 +7,9 @@
 #   0x8000000C -> cycle counter
 #   0x80000010 -> cycle when LEDs were last written
 #
-# Clock: 12 MHz
-#   3.0 s = 36,000,000 cycles
-#   0.1 s =  1,200,000 cycles
+# Clock: 25 MHz
+#   3.0 s = 75,000,000 cycles
+#   0.1 s =  2,500,000 cycles
 #
 # Register use:
 #   x1  = peripheral base
@@ -67,9 +67,9 @@ round_start:
     # Read current cycle counter
     lw   x4, 12(x1)
 
-    # x6 = 36,000,000 cycles = 3 seconds
-    lui  x6, 0x2255
-    addi x6, x6, 256
+    # x6 = 75,000,000 cycles = 3 seconds
+    lui  x6, 0x4787
+    addi x6, x6, -1856
 
 
 # --------------------------------------------------
@@ -156,7 +156,7 @@ target_led_2:
 target_led_4:
 
     addi x7, x0, 4
-
+    jal  x0, target_ready
 
 # --------------------------------------------------
 # START REACTION MEASUREMENT
@@ -211,7 +211,7 @@ correct_button:
 # --------------------------------------------------
 # CONVERT REACTION CYCLES TO TENTHS
 #
-# 0.1 seconds at 12 MHz = 1,200,000 cycles
+# 0.1 seconds at 25 MHz = 2,500,000 cycles
 # --------------------------------------------------
 
     addi x11, x0, 0
@@ -219,9 +219,9 @@ correct_button:
     # Working copy of reaction cycles
     add  x14, x10, x0
 
-    # x12 = 1,200,000
-    lui  x12, 0x125
-    addi x12, x12, -128
+    # x12 = 2,500,000
+    lui  x12, 0x262
+    addi x12, x12, 1440
 
 
 reaction_to_tenths:
@@ -343,7 +343,7 @@ game_finished:
 #
 # Equivalent:
 #
-# total_cycles / 12,000,000
+# total_cycles / 25,000,000
 #
 # Result is directly the average in tenths.
 # --------------------------------------------------
@@ -353,9 +353,9 @@ game_finished:
     # Working copy of accumulated cycles
     add  x14, x3, x0
 
-    # x12 = 12,000,000
-    lui  x12, 0xB72
-    addi x12, x12, -1280
+    # x12 = 25,000,000
+    lui  x12, 0x17D8
+    addi x12, x12, -1984
 
 
 average_to_tenths:
@@ -422,6 +422,35 @@ average_bcd_done:
 # FINISHED STATE
 # --------------------------------------------------
 
-finished_loop:
+# --------------------------------------------------
+# WAIT FOR BUTTON 4 TO START A NEW GAME
+#
+# Button 4 corresponds to mask 1000 = 8.
+# First wait until all buttons are released so that
+# the button used in the last round cannot restart
+# the game accidentally.
+# --------------------------------------------------
 
-    jal  x0, finished_loop
+finished_wait_release:
+
+    lw   x8, 8(x1)
+    bne  x8, x0, finished_wait_release
+
+    # x9 = button 4 mask
+    addi x9, x0, 8
+
+
+finished_wait_button4:
+
+    lw   x8, 8(x1)
+    bne  x8, x9, finished_wait_button4
+
+
+# Wait for button 4 to be released before restarting
+finished_wait_button4_release:
+
+    lw   x8, 8(x1)
+    bne  x8, x0, finished_wait_button4_release
+
+    # Restart complete game
+    jal  x0, _start
