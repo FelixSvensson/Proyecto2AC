@@ -1,4 +1,6 @@
 
+# declara los pines de la Goboard, instancia el SoC y le dice que porgrama cargar
+
 module game_top (
   input  wire       i_Clk,
 
