@@ -3,7 +3,7 @@
 import sys
 import re
 
-
+#evita no admitidos
 def parse_register(text):
     text = text.strip().lower()
 
@@ -12,7 +12,7 @@ def parse_register(text):
 
     return int(text[1:])
 
-
+#texto a entero
 def parse_immediate(text):
     return int(text.strip(), 0)
 
