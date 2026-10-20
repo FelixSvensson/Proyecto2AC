@@ -32,8 +32,7 @@ module pochoco_soc #(
   assign clk = i_Clk;
 
   // Power-on reset
-  // Keep the SoC in reset for 255 clock cycles after configuration.
-  // At 25 MHz this is about 10 us and gives the CPU/RAM a clean startup.
+
   reg  [7:0] por_cnt = 8'b0;
   wire       rst_ni;
 

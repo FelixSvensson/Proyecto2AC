@@ -23,8 +23,6 @@ module pochoco_periph_tb;
   reg [31:0] led_stamp_2;
   reg [31:0] button_value;
 
-
-  // Device under test
   pochoco_periph dut (
     .clk_i   (clk_i),
     .rst_ni  (rst_ni),
@@ -40,14 +38,7 @@ module pochoco_periph_tb;
     .seg2_o  (seg2_o)
   );
 
-
-  // Clock
   always #5 clk_i = ~clk_i;
-
-
-  // -----------------------------------------------
-  // Write helper
-  // -----------------------------------------------
 
   task write_reg;
 
@@ -78,10 +69,6 @@ module pochoco_periph_tb;
   endtask
 
 
-  // -----------------------------------------------
-  // Read helper
-  // -----------------------------------------------
-
   task read_reg;
 
     input [7:0] addr;
@@ -110,11 +97,6 @@ module pochoco_periph_tb;
 
   endtask
 
-
-  // -----------------------------------------------
-  // Tests
-  // -----------------------------------------------
-
   initial begin
 
     $dumpfile("sim/pochoco_periph_tb.vcd");
@@ -131,11 +113,6 @@ module pochoco_periph_tb;
 
     errors = 0;
 
-
-    // ---------------------------------------------
-    // RESET
-    // ---------------------------------------------
-
     repeat (3)
       @(posedge clk_i);
 
@@ -144,11 +121,6 @@ module pochoco_periph_tb;
 
     repeat (2)
       @(posedge clk_i);
-
-
-    // =============================================
-    // TEST 1 - Cycle counter
-    // =============================================
 
     $display("");
     $display("TEST 1 - Cycle counter");
@@ -172,11 +144,6 @@ module pochoco_periph_tb;
 
     end
 
-
-    // =============================================
-    // TEST 2 - LED write
-    // =============================================
-
     $display("");
     $display("TEST 2 - LED write");
 
@@ -193,17 +160,9 @@ module pochoco_periph_tb;
 
     end
 
-
-    // =============================================
-    // TEST 3 - Exact LED timestamp
-    // =============================================
-
     $display("");
     $display("TEST 3 - LED timestamp");
 
-    // Immediately after the LED write, cycle_q has
-    // advanced by one cycle while led_cycle_q contains
-    // the cycle in which the write occurred.
 
     if (dut.led_cycle_q == (dut.cycle_q - 1)) begin
 
@@ -233,11 +192,6 @@ module pochoco_periph_tb;
 
     end
 
-
-    // =============================================
-    // TEST 4 - Buttons
-    // =============================================
-
     $display("");
     $display("TEST 4 - Button input");
 
@@ -257,11 +211,6 @@ module pochoco_periph_tb;
     end
 
     btn_i = 4'b0000;
-
-
-    // =============================================
-    // TEST 5 - Second LED timestamp
-    // =============================================
 
     $display("");
     $display("TEST 5 - New LED timestamp");
@@ -284,15 +233,9 @@ module pochoco_periph_tb;
 
     end
 
-
-    // =============================================
-    // TEST 6 - Seven-segment display
-    // =============================================
-
     $display("");
     $display("TEST 6 - Display");
 
-    // Write hexadecimal 25
     write_reg(8'h00, 32'h00000025);
 
     if ((seg1_o == 7'b1011011) &&
@@ -306,11 +249,6 @@ module pochoco_periph_tb;
       errors = errors + 1;
 
     end
-
-
-    // =============================================
-    // FINAL RESULT
-    // =============================================
 
     $display("");
     $display("--------------------------------");

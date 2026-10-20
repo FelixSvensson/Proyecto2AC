@@ -203,10 +203,6 @@ def assemble_instruction(line, pc, labels):
     else:
         operands = []
 
-    # --------------------------------------------------
-    # U TYPE
-    # --------------------------------------------------
-
     if instruction == "lui":
 
         rd = parse_register(operands[0])
@@ -228,10 +224,6 @@ def assemble_instruction(line, pc, labels):
             rd,
             immediate
         )
-
-    # --------------------------------------------------
-    # I TYPE ARITHMETIC
-    # --------------------------------------------------
 
     immediate_operations = {
         "addi":  0b000,
@@ -257,10 +249,6 @@ def assemble_instruction(line, pc, labels):
             rs1,
             immediate
         )
-
-    # --------------------------------------------------
-    # R TYPE
-    # --------------------------------------------------
 
     register_operations = {
         "add":  (0b000, 0b0000000),
@@ -289,10 +277,6 @@ def assemble_instruction(line, pc, labels):
             rs2
         )
 
-    # --------------------------------------------------
-    # LOAD
-    # --------------------------------------------------
-
     load_operations = {
         "lb":  0b000,
         "lh":  0b001,
@@ -317,10 +301,6 @@ def assemble_instruction(line, pc, labels):
             offset
         )
 
-    # --------------------------------------------------
-    # STORE
-    # --------------------------------------------------
-
     store_operations = {
         "sb": 0b000,
         "sh": 0b001,
@@ -342,10 +322,6 @@ def assemble_instruction(line, pc, labels):
             rs2,
             offset
         )
-
-    # --------------------------------------------------
-    # BRANCH
-    # --------------------------------------------------
 
     branch_operations = {
         "beq":  0b000,
@@ -375,10 +351,6 @@ def assemble_instruction(line, pc, labels):
             offset
         )
 
-    # --------------------------------------------------
-    # JAL
-    # --------------------------------------------------
-
     if instruction == "jal":
 
         rd = parse_register(operands[0])
@@ -394,10 +366,6 @@ def assemble_instruction(line, pc, labels):
             rd,
             offset
         )
-
-    # --------------------------------------------------
-    # JALR
-    # --------------------------------------------------
 
     if instruction == "jalr":
 

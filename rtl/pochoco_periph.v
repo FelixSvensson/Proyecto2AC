@@ -16,25 +16,12 @@ module pochoco_periph (
   wire [5:0] off    = addr_i[7:2];
   wire       access = sel_i & req_i;
 
-  // --------------------------------------------------
-  // Peripheral registers
-  // --------------------------------------------------
-
   reg [3:0]  led_q;
   reg [7:0]  digit_q;
 
-  // Free-running clock-cycle counter
   reg [31:0] cycle_q;
 
-  // Cycle in which the LEDs were last written.
-  // This lets the program know the exact logical
-  // instant in which the target LED was activated.
   reg [31:0] led_cycle_q;
-
-
-  // --------------------------------------------------
-  // Cycle counter
-  // --------------------------------------------------
 
   always @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni)
@@ -42,11 +29,6 @@ module pochoco_periph (
     else
       cycle_q <= cycle_q + 32'd1;
   end
-
-
-  // --------------------------------------------------
-  // Writable peripheral registers
-  // --------------------------------------------------
 
   always @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
@@ -59,15 +41,9 @@ module pochoco_periph (
 
       case (off)
 
-        // 0x8000_0000
-        // Two hexadecimal digits
         6'd0:
           digit_q <= wdata_i[7:0];
 
-        // 0x8000_0004
-        // LEDs
-        //
-        // Save the cycle in which the LEDs change.
         6'd1: begin
           led_q       <= wdata_i[3:0];
           led_cycle_q <= cycle_q;
@@ -82,11 +58,6 @@ module pochoco_periph (
 
 
   assign leds_o = led_q;
-
-
-  // --------------------------------------------------
-  // Hexadecimal to 7-segment decoder
-  // --------------------------------------------------
 
   function [6:0] hex2seg;
 
@@ -120,14 +91,8 @@ module pochoco_periph (
 
   endfunction
 
-
   assign seg1_o = hex2seg(digit_q[7:4]);
   assign seg2_o = hex2seg(digit_q[3:0]);
-
-
-  // --------------------------------------------------
-  // Readable peripheral registers
-  // --------------------------------------------------
 
   always @(posedge clk_i or negedge rst_ni) begin
 
@@ -139,18 +104,13 @@ module pochoco_periph (
 
       case (off)
 
-        // 0x8000_0008
         // Buttons
         6'd2:
           rdata_o <= {28'b0, btn_i};
 
-        // 0x8000_000C
-        // Current clock-cycle counter
         6'd3:
           rdata_o <= cycle_q;
 
-        // 0x8000_0010
-        // Cycle in which LEDs were last changed
         6'd4:
           rdata_o <= led_cycle_q;
 
