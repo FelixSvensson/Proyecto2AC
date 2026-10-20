@@ -1,6 +1,17 @@
 .section .text
 .global _start
 
+# x1 guarda la base de perifericos 0x80000000
+# x2 rodas correctas de 0 a 10
+# x3 suma de ciclos de reaccion de las rondas correctas
+# x4 ciclo de inicio
+# x5 y x6 ciclos transcurridos y la constante 75000000
+# x7 objetivo
+# x8 botones leidos
+# x9 temporal, lecturas del contador y constante
+# x10 ciclos de reaccion de la rondas
+# x12 divisor
+# x13 valor para el displey
 
 
 _start:
