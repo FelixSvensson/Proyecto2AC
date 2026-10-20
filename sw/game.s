@@ -163,7 +163,7 @@ game_finished:
 
 
 average_to_tenths:
-    bltu x14, x12, average_conversion_done
+    bltu x14, x12, average_conversion_done   #divide restando, le quita 2500000 a x14 y le suma 1 en x11 hasta lque lo que queda es menor
     sub  x14, x14, x12
     addi x11, x11, 1
     addi x9, x0, 99
@@ -179,13 +179,13 @@ average_conversion_done:
     addi x15, x0, 0
     addi x9, x0, 10
 
-average_bcd_loop:
+average_bcd_loop:  #separa decenas y unidades
     bltu x14, x9, average_bcd_done
     addi x14, x14, -10
     addi x15, x15, 1
     jal  x0, average_bcd_loop
 
-average_bcd_done:
+average_bcd_done: #arma el numero para los display
     add  x13, x15, x15
     add  x13, x13, x13
     add  x13, x13, x13
@@ -193,17 +193,17 @@ average_bcd_done:
     add  x13, x13, x14
     sw   x13, 0(x1)
 
-finished_wait_release:
+finished_wait_release: #espera a que quites todos los botones
     lw   x8, 8(x1)
     bne  x8, x0, finished_wait_release
     addi x9, x0, 8
 
 
-finished_wait_button4:
+finished_wait_button4: #espera a que los botones muestran exactamente 8
     lw   x8, 8(x1)
     bne  x8, x9, finished_wait_button4
 
-finished_wait_button4_release:
+finished_wait_button4_release: # espera a que sueltes el boton 4 para que esa ultima pulsacion no cuente como respuesta
     lw   x8, 8(x1)
     bne  x8, x0, finished_wait_button4_release
     jal  x0, _start
