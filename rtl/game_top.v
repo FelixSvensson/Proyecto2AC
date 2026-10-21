@@ -1,5 +1,5 @@
 
-# declara los pines de la Goboard, instancia el SoC y le dice que porgrama cargar
+// Declara los pines de la Go Board, instancia el SoC y selecciona el programa.
 
 module game_top (
   input  wire       i_Clk,
