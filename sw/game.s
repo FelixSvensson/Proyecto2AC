@@ -35,8 +35,8 @@ round_start:
 
     lw   x4, 12(x1)
 
-    lui  x6, 0x4787
-    addi x6, x6, -1856
+    lui  x6, 0xEE6b
+    addi x6, x6, 640
 
 
 
