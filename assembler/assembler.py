@@ -208,7 +208,7 @@ def assemble_instruction(line, pc, labels):
         rd = parse_register(operands[0])
         immediate = parse_immediate(operands[1])
         if not (-(1 << 19) <= immediate <= (1 << 20) - 1):
-    raise ValueError("El inmediato de 20 bits está fuera de rango")
+            raise ValueError("El inmediato de 20 bits está fuera de rango")
 
         return encode_u(
             0x37,
@@ -221,7 +221,7 @@ def assemble_instruction(line, pc, labels):
         rd = parse_register(operands[0])
         immediate = parse_immediate(operands[1])
         if not (-(1 << 19) <= immediate <= (1 << 20) - 1):
-    raise ValueError("El inmediato de 20 bits está fuera de rango")
+            raise ValueError("El inmediato de 20 bits está fuera de rango")
 
         return encode_u(
             0x17,
