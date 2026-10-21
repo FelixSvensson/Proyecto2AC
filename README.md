@@ -391,7 +391,7 @@ make prog
 Esto genera el bitstream si es necesario y ejecuta:
 
 ```text
-iceprog game_top.bin
+iceprog -s -k game_top.bin
 ```
 
 Si se trabaja desde WSL, el dispositivo USB debe estar disponible dentro de Linux antes de utilizar `iceprog`.
